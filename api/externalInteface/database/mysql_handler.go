@@ -1,34 +1,34 @@
 package database
+
 import (
+	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"fmt"
-	"github.com/BurntSushi/toml"
 )
 
-type SqlHandler struct {
+type DBConnection struct {
 	DB *gorm.DB
 }
 
-func NewSqlHandler() *gorm.DB {
-	var config Config
-	_, err := toml.DecodeFile("config.toml", &config)
+func NewSqlConnection() DBConnection {
+	config, err := LoadConfig()
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
-	dbconf := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		config.User,
-		config.Pass,
-		config.Host,
-		config.Port,
-		config.DB)
+	dbconf := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		config.DB.User,
+		config.DB.Password,
+		config.DB.Host,
+		config.DB.DB)
+	fmt.Println("hogehgoe:", dbconf)
 	db, err := gorm.Open("mysql", dbconf)
 	if err != nil {
 		panic(err)
 	}
 	db.LogMode(true)
-	// defer db.Close()
-	return db
-}
 
+	// defer db.Close()
+	return DBConnection{DB: db}
+}

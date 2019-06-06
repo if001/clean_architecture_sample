@@ -1,16 +1,19 @@
 package externalInteface
 
-import "github.com/gin-gonic/gin"
-
+import (
+	"github.com/gin-gonic/gin"
+	"clean_architecture_sample/api/externalInteface/database"
+	"clean_architecture_sample/api/gateway/controllers"
+)
 
 func Router() *gin.Engine {
 	router := gin.Default()
 
-	// userController := controllers.NewUserController(NewSqlHandler())
+	conn := database.NewSqlConnection()
 
-	router.POST("/users", func(c *gin.Context) { userController.Create(c) })
-	router.GET("/users", func(c *gin.Context) { userController.Index(c) })
-	router.GET("/users/:id", func(c *gin.Context) { userController.Show(c) })
+	c := controllers.NewBookController(conn)
+
+	router.GET("/books", c.GetAllBooks )
 
 	return router
 }
